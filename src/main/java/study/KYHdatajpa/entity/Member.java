@@ -8,6 +8,11 @@ import javax.persistence.*;
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"id", "username", "age"})  // team을 넣으면 무한루프에 빠질 가능성이 있음
+// `NamedQuery`는 실무에서는 잘 안씀
+@NamedQuery(
+        name="Member.findByUsername",
+        query = "select m from Member m where m.username = :username"  // Application 로딩 시점에 파싱을 해보고, 문법오류가 있으면 로딩 시저에 에러를 띄워서 알려준다.
+)
 public class Member {
 
     @Id
@@ -37,6 +42,11 @@ public class Member {
         if (team != null) {
             changeTeam(team);
         }
+    }
+
+    public Member(String username, int age) {
+        this.username = username;
+        this.age = age;
     }
 
     // 연관관계 편의 메서드
