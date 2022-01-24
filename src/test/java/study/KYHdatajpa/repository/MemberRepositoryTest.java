@@ -15,7 +15,9 @@ import study.KYHdatajpa.dto.MemberDto;
 import study.KYHdatajpa.entity.Member;
 import study.KYHdatajpa.entity.Team;
 
+import javax.persistence.EntityManager;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +33,8 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;  // 같은 트랜잭션에서는 같은 `EntityManager`를 사용
 
     @Test
     public void testMember() {
@@ -297,6 +301,36 @@ class MemberRepositoryTest {
 //        assertThat(page.getTotalPages()).isEqualTo(2);
         assertThat(page.isFirst()).isTrue();
         assertThat(page.hasNext()).isTrue();
+    }
+
+    @Test  // bulkAgePlus
+    public void bulkUpdate() {
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        // when
+/*
+        int resultCount = memberRepository.bulkAgePlus(20);  // 영속성 컨텍스트를 무시하고 DB에 바로 떼려넣어버림.-> 영속성 컨텍스트에는 반영이 안됨
+        List<Member> result = memberRepository.findByUsername("member5");
+        Member member5 = result.get(0);
+        System.out.println("member5 = " + member5);  // DB에는 벌크연산으로 인해 age가 41로 업데이트 되었으나, 출력결과는 age = 40
+*/
+
+        int resultCount = memberRepository.bulkAgePlus(20);  // 영속성 컨텍스트를 무시하고 DB에 바로 떼려넣어버림.-> 영속성 컨텍스트에는 반영이 안됨
+        // 벌크연산 후 추가로직이 있을때는 반드시 영속성 컨텍스트를 반영,초기화 해줘야한다.
+//        em.flush();  // jpa 기본 동작이 jpql 쿼리를 날리기 전에 기본적으로 영속성 컨텍스트 flush를 해서 db에 반영시킨다. 따라서 `em.flush()`는 생략가능
+//        em.clear();  // springDataJpa에서는 `@Modifying(clearAutomatically = true)`를 사용해서 영속성컨텍스트를 초기화 해줄 수 있다. 해당 옵션을 사용하면 `em.clear()` 생략가능
+        // myBatis등을 사용할때도 벌크연산과 마찬가지로, 영속성 컨텍스트에서 해당 내용을 알 수가 없다. 따라서, 상황에 맞게 수동으로 `em.clear()`를 해줘야 한다.
+        List<Member> result = memberRepository.findByUsername("member5");  // 영속성 컨텍스트가 비워졌기 때문에 db에서 다시 조회해옴
+        Member member5 = result.get(0);
+        System.out.println("member5 = " + member5);  // 출력결과는 age = 41
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
     }
 
 }
