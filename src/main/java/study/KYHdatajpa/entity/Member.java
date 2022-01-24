@@ -13,6 +13,7 @@ import javax.persistence.*;
         name="Member.findByUsername",
         query = "select m from Member m where m.username = :username"  // Application 로딩 시점에 파싱을 해보고, 문법오류가 있으면 로딩 시저에 에러를 띄워서 알려준다.
 )
+@NamedEntityGraph(name = "Member.all", attributeNodes = @NamedAttributeNode("team"))
 public class Member {
 
     @Id
