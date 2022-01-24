@@ -1,8 +1,10 @@
 package study.KYHdatajpa.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
@@ -14,7 +16,8 @@ import javax.persistence.*;
         query = "select m from Member m where m.username = :username"  // Application 로딩 시점에 파싱을 해보고, 문법오류가 있으면 로딩 시저에 에러를 띄워서 알려준다.
 )
 @NamedEntityGraph(name = "Member.all", attributeNodes = @NamedAttributeNode("team"))
-public class Member {
+//public class Member extends JpaBaseEntity {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -22,6 +25,13 @@ public class Member {
     private Long id;
     private String username;
     private int age;
+
+/*
+    // 등록일만 필요한 경우에는 `BaseEntity` extends 하지 않고 하단 코드 3줄만 추가
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdDate;
+*/
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")

@@ -10,7 +10,7 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"id", "name"})  // members을 넣으면 무한루프에 빠질 가능성이 있음
-public class Team {
+public class Team extends JpaBaseEntity{
 
     @Id
     @GeneratedValue
