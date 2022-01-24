@@ -290,15 +290,15 @@ class MemberRepositoryTest {
 //        Slice<Member> page = memberRepository.findSliceByAge(age, pageRequest);
         Page<Member> page = memberRepository.findQueryByAge(age, pageRequest);
         // API같은 경우는 엔티티를 반환하면 안되고 반드시 dto로 변환하여 반환해야함 (KYH JPA 활용편2 참고)
-        Page<MemberDto> map = page.map(m -> new MemberDto(m.getId(), m.getUsername(), m.getTeam().getName()));
+        Page<MemberDto> toMap = page.map(m -> new MemberDto(m.getId(), m.getUsername(), null));
 
         // then
         List<Member> content = page.getContent();
 
         assertThat(content.size()).isEqualTo(3);
-//        assertThat(page.getTotalElements()).isEqualTo(5);
+        assertThat(page.getTotalElements()).isEqualTo(5);  // Slice 시에는 필요없음
         assertThat(page.getNumber()).isEqualTo(0);
-//        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.getTotalPages()).isEqualTo(2);  // Slice 시에는 필요없음
         assertThat(page.isFirst()).isTrue();
         assertThat(page.hasNext()).isTrue();
     }
