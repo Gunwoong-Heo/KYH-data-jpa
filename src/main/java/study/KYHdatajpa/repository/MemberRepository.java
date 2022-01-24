@@ -3,15 +3,14 @@ package study.KYHdatajpa.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import study.KYHdatajpa.dto.MemberDto;
 import study.KYHdatajpa.entity.Member;
 
 import javax.persistence.Entity;
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -74,5 +73,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 //    @EntityGraph("Member.all") 
     @EntityGraph(attributePaths = ("team"))
     List<Member> findEntityGraphByUsername(@Param("username") String username);
+
+    // 성능 최적화가 그렇게 많이 되지 않는다. 정말 엄청 많은 트래픽이 몰리는 특정 api 몇개에만 선택적으로 적용하던지 말던지..(성능 테스트 후에 결정)
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+    Member findReadOnlyByUsername(String username);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)  // package javax.persistence  ->  jpa에서 제공하는 기능, dataJpa에서는 사용하기 쉽게 어노테이션을 제공
+    List<Member> findLockByUsername(String username);
 
 }

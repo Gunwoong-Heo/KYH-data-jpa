@@ -385,4 +385,36 @@ class MemberRepositoryTest {
         // then
     }
 
+    @Test
+    public void queryHint() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        // when
+/*
+        Member findMember = memberRepository.findById(member1.getId()).get();  // 실무에서는 `get()` 으로 바로 꺼내오면 안됨. null 검증 할 수 있게 코딩해야함.
+        findMember.setUsername("member2");
+        em.flush();  // dirtyChecking (dirtyChekcing을 하려면 원래 어떤 상태였는지(snapShot)까지 알아야 함으로 자원을 잡아먹는다.)
+*/
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");  // 내부적으로 snapShot을 안 만드는 등 성능최적화를 함.
+        findMember.setUsername("member2");
+        em.flush();  // readonly로 hints를 설정했기 때문에 update 쿼리가 나가지 않음
+    }
+
+    @Test
+    public void lock() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        // when
+        List<Member> result = memberRepository.findLockByUsername("member1");
+    }
+
+
 }
