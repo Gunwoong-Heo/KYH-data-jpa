@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Getter
 // 시간만 필요한 경우에는 `BaseTimeEntity`만 extends해서 사용
-// 누가 등록했고, 수정했는지 까지는 알 필요가 없는 테이블들이 있기 때문에, `BaseTimeEntity`를 만들어서 `BaseEntity`에서 상속받게 만듬 
+// 누가 등록했고, 수정했는지 까지는 알 필요가 없는 테이블들이 있기 때문에, `BaseTimeEntity`를 만들어서 `BaseEntity`에서 상속받게 만듬
 public class BaseTimeEntity {
 
     @CreatedDate
