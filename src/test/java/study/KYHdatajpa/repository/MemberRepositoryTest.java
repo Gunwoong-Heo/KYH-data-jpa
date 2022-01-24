@@ -333,4 +333,56 @@ class MemberRepositoryTest {
         assertThat(resultCount).isEqualTo(3);
     }
 
+
+    @Test
+    public void findMemberLazy() {
+        // given
+        // member1 -> teamA
+        // member2 -> teamB
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+        Member member3 = new Member("member1", 20, teamA);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+        memberRepository.save(member3);
+
+        em.flush();
+        em.clear();
+
+        // when
+/*
+        // N+1
+        // MemberRepository에서 `findAll()` 오버라이드해서 엔티티그래프로 team을 지정 하게 되면, jpql을 작성하지 않고서도 fetch join을 사용할 수 있다.(결국 내부적으로는 springDataJpa가 fetchJoin을 짜주는 것)
+        List<Member> members = memberRepository.findAll();
+        for (Member member : members) {
+            System.out.println("member.getUsername() = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getTeam().getClass());  // Team$HibernateProxy$vAFaqHdT (不`findAll()`overRide 기준)
+            System.out.println("member.team.name = " + member.getTeam().getName());  // 이 시점에 team을 조회하는 쿼리를 날림. (不`findAll()`overRide 기준)
+        }
+*/
+
+/*
+        // fetch join
+        List<Member> members2 = memberRepository.findMemberFetchJoin();
+        for (Member member : members2) {
+            System.out.println("member.getUsername() = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getTeam().getClass());  // Team  // 위에 코드블럭(memberRepository.findAll()로 받아온..) 주석 풀고 돌리면(이 코드 블럭하고, 위 코드블럭 2블럭만 키고 돌림) 출력결과 달라짐?? -> 체크해보기
+            System.out.println("member.team.name = " + member.getTeam().getName());
+        }
+*/
+
+        List<Member> members = memberRepository.findEntityGraphByUsername("member1");
+        for (Member member : members) {
+            System.out.println("member.getUsername() = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getTeam().getClass());
+            System.out.println("member.team.name = " + member.getTeam().getName());
+        }
+
+        // then
+    }
+
 }

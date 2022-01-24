@@ -3,6 +3,7 @@ package study.KYHdatajpa.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import study.KYHdatajpa.dto.MemberDto;
 import study.KYHdatajpa.entity.Member;
 
+import javax.persistence.Entity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -55,5 +57,22 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
+
+    @Query("select m from Member m left join fetch m.team")
+    List<Member> findMemberFetchJoin();
+
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
+
+    // 혼합형도 가능
+    @EntityGraph(attributePaths = {"team"})
+    @Query("select m from Member m")
+    List<Member> findMemberEntityGraph();
+
+    // `@NamedEntityGraph` 를 활용하는 방법도 있음 -> 잘 안 씀. `attributePaths`를 사용하는 방식으로 하거나, 더 복잡한 것들은 jpql을 직접짜는 방식으로 해결
+//    @EntityGraph("Member.all") 
+    @EntityGraph(attributePaths = ("team"))
+    List<Member> findEntityGraphByUsername(@Param("username") String username);
 
 }
