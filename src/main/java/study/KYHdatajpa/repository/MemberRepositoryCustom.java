@@ -4,6 +4,6 @@ import study.KYHdatajpa.entity.Member;
 
 import java.util.List;
 
-public interface MemberRepositoryCutsom {
+public interface MemberRepositoryCustom {
     List<Member> findMemberCustom();
 }

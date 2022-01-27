@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import study.KYHdatajpa.dto.MemberDto;
 import study.KYHdatajpa.entity.Member;
 
-import javax.persistence.Entity;
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 import java.util.Collection;
@@ -16,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCutsom {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
     List<Member> findByUsernameAndAgeGreaterThan(String name, int age);
 
